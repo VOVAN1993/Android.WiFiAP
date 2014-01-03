@@ -9,7 +9,6 @@ import android.widget.TextView;
 import java.net.SocketException;
 import java.util.ArrayList;
 
-//TODO : сделать отдельный класс сервер клиент
 public class MyActivity extends Activity {
     TextView textView1;
     MyWiFIAPManager wifiManager;
@@ -26,7 +25,7 @@ public class MyActivity extends Activity {
         boolean is_server = true;
         wifiManager = null;
         if (is_server) {
-            wifiManager = new MyWiFIAPManager((WifiManager) getSystemService(Context.WIFI_SERVICE), "vova");
+            wifiManager = new MyWiFIAPManager((WifiManager) getSystemService(Context.WIFI_SERVICE), "vova", "12345678");
             try {
                 wifiManager.createWifiAccessPoint();
             } catch (SocketException e) {
