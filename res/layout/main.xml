@@ -9,5 +9,8 @@
             android:layout_height="wrap_content"
             android:text="Hello World, MyActivity"
             />
+    <TextView android:layout_width="wrap_content" android:layout_height="145dp"
+              android:text="Hello World, MyActivity" android:id="@+id/n"
+              android:layout_gravity="center_horizontal"/>
 </LinearLayout>
 
