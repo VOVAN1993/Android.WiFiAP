@@ -1,0 +1,10 @@
+.idea
+gen
+Android.WiFiAP.iml
+ant.properties
+build.xml
+local.properties
+proguard-project.txt
+project.properties
+bin
+assets
