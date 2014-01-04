@@ -12,5 +12,11 @@
     <TextView android:layout_width="wrap_content" android:layout_height="145dp"
               android:text="Hello World, MyActivity" android:id="@+id/n"
               android:layout_gravity="center_horizontal"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/my_button1"
+            android:id="@+id/button1"
+            android:onClick="onClickButton"/>
 </LinearLayout>
 

@@ -1,17 +1,26 @@
 package com.example.Android_WiFiAP;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.net.SocketException;
 import java.util.ArrayList;
 
 public class MyActivity extends Activity {
+    public static final String LOG_D_BUTTON = "Debug:button";
     TextView textView1;
     MyWiFIAPManager wifiManager;
+    BroadcastReceiver br;
+    Button button;
 
     /**
      * Called when the activity is first created.
@@ -22,6 +31,7 @@ public class MyActivity extends Activity {
         setContentView(R.layout.main);
 
         textView1 = (TextView) findViewById(R.id.n);
+        button = (Button) findViewById(R.id.button1);
         boolean is_server = true;
         wifiManager = null;
         if (is_server) {
@@ -33,6 +43,22 @@ public class MyActivity extends Activity {
             }
         }
 
+        br = new BroadcastReceiver() {
+            // действия при получении сообщений
+            public void onReceive(Context context, Intent intent) {
+                Log.d("Debug:info", "!!!!!!!!!" + intent.getAction());
+            }
+        };
+        // создаем фильтр для BroadcastReceiver
+        IntentFilter intFilt = new IntentFilter(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
+        intFilt.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        intFilt.addAction("android.net.wifi.WIFI_AP_STATE_CHANGED");
+        intFilt.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
+        intFilt.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        intFilt.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
+        intFilt.addAction(WifiManager.ACTION_PICK_WIFI_NETWORK);
+        // регистрируем (включаем) BroadcastReceiver
+        registerReceiver(br, intFilt);
         wifiManager.start_client_handler();
 
     }
@@ -50,4 +76,9 @@ public class MyActivity extends Activity {
         }
     }
 
+    public void onClickButton(View v) {
+        Log.d(LOG_D_BUTTON, "tut" + v.toString());
+        textView1.setText("");
+        scan();
+    }
 }
