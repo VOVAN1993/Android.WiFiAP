@@ -15,8 +15,8 @@ import android.widget.TextView;
 import java.net.SocketException;
 import java.util.ArrayList;
 
-public class MyActivity extends Activity {
-    public static final String LOG_D_BUTTON = "Debug:button";
+public class Server_Activity extends Activity {
+    public static final String LOG_D = "Debug:Server_act";
     TextView textView1;
     MyWiFIAPManager wifiManager;
     BroadcastReceiver br;
@@ -29,7 +29,7 @@ public class MyActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
+        Log.d(LOG_D, "Start ServerActivity");
         textView1 = (TextView) findViewById(R.id.n);
         button = (Button) findViewById(R.id.button1);
         boolean is_server = true;
@@ -77,8 +77,11 @@ public class MyActivity extends Activity {
     }
 
     public void onClickButton(View v) {
-        Log.d(LOG_D_BUTTON, "tut" + v.toString());
-        textView1.setText("");
-        scan();
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+//        break;
+//        Log.d(LOG_D_BUTTON, "tut" + v.toString());
+//        textView1.setText("");
+//        scan();
     }
 }
