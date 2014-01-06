@@ -1,5 +1,7 @@
 package com.example.Android_WiFiAP;
 
+import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -65,5 +67,14 @@ public class Util {
         }
 
         return result;
+    }
+
+    public static Message getMessageFromString(String str, String key) {
+        Bundle messageBundle = new Bundle();
+        messageBundle.putString(key, str);
+
+        Message message = new Message();
+        message.setData(messageBundle);
+        return message;
     }
 }

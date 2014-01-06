@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -33,7 +35,7 @@ public class Server_Activity extends Activity {
 
         Log.d(LOG_D, "Start ServerActivity");
         Log.d(LOG_D_FOR_ACT, "ServerActivity.onCreate");
-        textView1 = (TextView) findViewById(R.id.n);
+        textView1 = (TextView) findViewById(R.id.chat);
         button = (Button) findViewById(R.id.button1);
         boolean is_server = true;
         wifiManager = null;
@@ -60,9 +62,18 @@ public class Server_Activity extends Activity {
         intFilt.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         intFilt.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
         intFilt.addAction(WifiManager.ACTION_PICK_WIFI_NETWORK);
+
+        Handler h = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                String chatLine = msg.getData().getString("msg");
+                textView1.append(chatLine);
+                textView1.append("\n");
+            }
+        };
         // регистрируем (включаем) BroadcastReceiver
-        registerReceiver(br, intFilt);
-        wifiManager.start();
+        //  registerReceiver(br, intFilt);
+        wifiManager.start(h);
 //        wifiManager.start_client_handler();
 
     }

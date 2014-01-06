@@ -1,6 +1,7 @@
 package com.example.Android_WiFiAP;
 
 
+import android.os.Handler;
 import android.util.Log;
 
 import java.io.DataInputStream;
@@ -30,20 +31,47 @@ public class Server {
     private final int mServerPort = 6666;
     private ServerSocket mServerSocket;
     private final int MAX_LENGTH_QUEUE = 1000;
+    private Handler mTextViewHandler;
 
-    public Server() {
+    public Server(Handler _handler) {
+        mTextViewHandler = _handler;
         mClients = Collections.synchronizedList(new LinkedList<Client>());
         mMessageQueue = new ArrayBlockingQueue<String>(MAX_LENGTH_QUEUE);
-        new Thread(new ServerThread()).run();
+        new Thread(new ServerThread()).start();
+        new Thread(new ServerRecv()).start();
     }
 
+    /*
+    @hide
+     */
+    private void closeSocket(Socket _sock) {
+        try {
+            _sock.close();
+        } catch (IOException e) {
+            Log.d(LOG_D, "Error I/O:close Socket");
+        }
+    }
+
+    private class ServerRecv implements Runnable {
+
+        @Override
+        public void run() {
+            while (!Thread.currentThread().isInterrupted() || !mMessageQueue.isEmpty()) {
+                try {
+                    mTextViewHandler.sendMessage(Util.getMessageFromString(mMessageQueue.take(), "msg"));
+                } catch (InterruptedException e) {
+                    Log.d(LOG_D, "Ne doljno bit' (obrabotano v while,hota hz) " + e);
+                }
+            }
+        }
+    }
 
     private class ServerThread implements Runnable {
         @Override
         public void run() {
             try {
                 mServerSocket = new ServerSocket(getServerPort());
-                while (true) {
+                while (!Thread.currentThread().isInterrupted()) {
                     Log.d(LOG_D, "Waiting for a client...");
                     Socket socket_new_client = mServerSocket.accept();
                     Client newClient = new Client(socket_new_client.getPort(), socket_new_client.getInetAddress(), socket_new_client);
@@ -58,66 +86,37 @@ public class Server {
                 Log.d(LOG_D, "IOException if an error occurs while creating the socket.\n" + e);
             }
         }
-    }
 
-    private class ServerHandler implements Runnable {
-        private Socket mClientSocket;
 
-        private ServerHandler(Socket mClientSocket) {
-            this.mClientSocket = mClientSocket;
-        }
+        private class ServerHandler implements Runnable {
+            private Socket mClientSocket;
 
-        @Override
-        public void run() {
-            InputStream sin = null;
-            try {
-                sin = mClientSocket.getInputStream();
-                DataInputStream in = new DataInputStream(sin);
-                String line = null;
-                while (true) {
-                    line = in.readUTF(); // ожидаем пока клиент пришлет строку текста.
-                    Log.d(LOG_D, "The dumb client just sent me this line : " + line);
-                }
-            } catch (IOException e) {
-                Log.d(LOG_D, "Error I/O " + e);
+            private ServerHandler(Socket mClientSocket) {
+                this.mClientSocket = mClientSocket;
             }
 
+            @Override
+            public void run() {
+                InputStream sin = null;
+                try {
+                    sin = mClientSocket.getInputStream();
+                    DataInputStream in = new DataInputStream(sin);
+                    String line = null;
+                    while (!Thread.currentThread().isInterrupted()) {
+                        line = in.readUTF(); // ожидаем пока клиент пришлет строку текста.
+                        mMessageQueue.add(line);
+                        Log.d(LOG_D, "The dumb client just sent me this line : " + line);
+                    }
+                } catch (IOException e) {
+                    Log.d(LOG_D, "Error I/O " + e);
+                } finally {
+                    closeSocket(mClientSocket);
+                }
+
+            }
         }
     }
 
-//    public static void main(String[] ar) {
-//        int port = 6666; // случайный порт (может быть любое число от 1025 до 65535)
-//        try {
-//
-//            ServerSocket ss = new ServerSocket(port); // создаем сокет сервера и привязываем его к вышеуказанному порту
-//            System.out.println("Waiting for a client...");
-//
-//            Socket socket = ss.accept(); // заставляем сервер ждать подключений и выводим сообщение когда кто-то связался с сервером
-//            System.out.println("Got a client :) ... Finally, someone saw me through all the cover!");
-//            System.out.println();
-//
-//            // Берем входной и выходной потоки сокета, теперь можем получать и отсылать данные клиенту.
-//            InputStream sin = socket.getInputStream();
-//            OutputStream sout = socket.getOutputStream();
-//
-//            // Конвертируем потоки в другой тип, чтоб легче обрабатывать текстовые сообщения.
-//            DataInputStream in = new DataInputStream(sin);
-//            DataOutputStream out = new DataOutputStream(sout);
-//
-//            String line = null;
-//            while (true) {
-//                line = in.readUTF(); // ожидаем пока клиент пришлет строку текста.
-//                System.out.println("The dumb client just sent me this line : " + line);
-//                System.out.println("I'm sending it back...");
-//                out.writeUTF(line); // отсылаем клиенту обратно ту самую строку текста.
-//                out.flush(); // заставляем поток закончить передачу данных.
-//                System.out.println("Waiting for the next line...");
-//                System.out.println();
-//            }
-//        } catch (Exception x) {
-//            x.printStackTrace();
-//        }
-//    }
 
     public int getServerPort() {
         return mServerPort;

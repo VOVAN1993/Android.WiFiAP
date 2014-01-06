@@ -2,6 +2,7 @@ package com.example.Android_WiFiAP;
 
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
 import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
@@ -77,8 +78,8 @@ public class MyWiFIAPManager {
         }
     }
 
-    public void start() {
-        Server server = new Server();
+    public void start(Handler handler) {
+        Server server = new Server(handler);
     }
 //    public void start_client_handler() {
 //        MyTask server = new MyTask();
