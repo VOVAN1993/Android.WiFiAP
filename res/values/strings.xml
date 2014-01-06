@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">untitled2</string>
     <string name="my_button1">My button</string>
+    <string name="exit_button">Exit</string>
 </resources>

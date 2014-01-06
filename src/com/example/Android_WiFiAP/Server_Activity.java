@@ -23,7 +23,7 @@ public class Server_Activity extends Activity {
     TextView textView1;
     MyWiFIAPManager wifiManager;
     BroadcastReceiver br;
-    Button button;
+    Button button, exitButton;
 
     /**
      * Called when the activity is first created.
@@ -37,6 +37,7 @@ public class Server_Activity extends Activity {
         Log.d(LOG_D_FOR_ACT, "ServerActivity.onCreate");
         textView1 = (TextView) findViewById(R.id.chat);
         button = (Button) findViewById(R.id.button1);
+        exitButton = (Button) findViewById(R.id.exit_button);
         boolean is_server = true;
         wifiManager = null;
         if (is_server) {
@@ -125,8 +126,22 @@ public class Server_Activity extends Activity {
     }
 
     public void onClickButton(View v) {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        switch (v.getId()) {
+            case R.id.exit_button:
+                Log.d(Server.LOG_D, "Begin \"The end\" ");
+                wifiManager.exit();
+                finish();
+                //TODO: сделать exit  в другом потоке
+                break;
+            case R.id.button1:
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+                break;
+            default:
+                Log.d(LOG_D, "Unknow button");
+                break;
+        }
+
 //        break;
 //        Log.d(LOG_D_BUTTON, "tut" + v.toString());
 //        textView1.setText("");

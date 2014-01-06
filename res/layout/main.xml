@@ -19,5 +19,11 @@
             android:text="@string/my_button1"
             android:id="@+id/button1"
             android:onClick="onClickButton"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/exit_button"
+            android:id="@+id/exit_button"
+            android:onClick="onClickButton"/>
 </LinearLayout>
 
