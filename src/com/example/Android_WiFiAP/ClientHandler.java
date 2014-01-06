@@ -1,5 +1,6 @@
 package com.example.Android_WiFiAP;
 
+import android.net.nsd.NsdServiceInfo;
 import android.util.Log;
 
 import java.io.*;
@@ -18,6 +19,7 @@ public class ClientHandler implements Runnable {
         try {
             InputStream sin = incom.getInputStream();
             OutputStream sout = incom.getOutputStream();
+            NsdServiceInfo s;
 
             // Конвертируем потоки в другой тип, чтоб легче обрабатывать текстовые сообщения.
             DataInputStream in = new DataInputStream(sin);

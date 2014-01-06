@@ -17,6 +17,7 @@ import java.util.ArrayList;
 
 public class Server_Activity extends Activity {
     public static final String LOG_D = "Debug:Server_act";
+    public static final String LOG_D_FOR_ACT = "Debug:Activitys";
     TextView textView1;
     MyWiFIAPManager wifiManager;
     BroadcastReceiver br;
@@ -29,7 +30,9 @@ public class Server_Activity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
         Log.d(LOG_D, "Start ServerActivity");
+        Log.d(LOG_D_FOR_ACT, "ServerActivity.onCreate");
         textView1 = (TextView) findViewById(R.id.n);
         button = (Button) findViewById(R.id.button1);
         boolean is_server = true;
@@ -59,10 +62,10 @@ public class Server_Activity extends Activity {
         intFilt.addAction(WifiManager.ACTION_PICK_WIFI_NETWORK);
         // регистрируем (включаем) BroadcastReceiver
         registerReceiver(br, intFilt);
-        wifiManager.start_client_handler();
+        wifiManager.start();
+//        wifiManager.start_client_handler();
 
     }
-
     private void scan() {
         ArrayList<ClientScanResult> clients = Util.getClientList();
 
@@ -74,6 +77,36 @@ public class Server_Activity extends Activity {
             textView1.append("Device: " + clientScanResult.getDevice() + "\n");
             textView1.append("HWAddr: " + clientScanResult.getHWAddr() + "\n");
         }
+    }
+
+    @Override
+    protected void onStart() {
+        Log.d(LOG_D_FOR_ACT, "Server.onStart");
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(LOG_D_FOR_ACT, "Server.onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(LOG_D_FOR_ACT, "Server.onPause");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(LOG_D_FOR_ACT, "Server.onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(LOG_D_FOR_ACT, "Server.onDestroy");
     }
 
     public void onClickButton(View v) {

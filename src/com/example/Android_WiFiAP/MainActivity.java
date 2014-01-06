@@ -15,6 +15,36 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+        Log.d(Server_Activity.LOG_D_FOR_ACT, "MainActivity.onCreate");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(Server_Activity.LOG_D_FOR_ACT, "MainActivity.onStart");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(Server_Activity.LOG_D_FOR_ACT, "MainActivity.onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(Server_Activity.LOG_D_FOR_ACT, "MainActivity.onPause");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(Server_Activity.LOG_D_FOR_ACT, "MainActivity.onDestroy");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 
     public void onClickButton(View view) {

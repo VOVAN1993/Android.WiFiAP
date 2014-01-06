@@ -77,10 +77,13 @@ public class MyWiFIAPManager {
         }
     }
 
-    public void start_client_handler() {
-        MyTask server = new MyTask();
-        server.execute();
+    public void start() {
+        Server server = new Server();
     }
+//    public void start_client_handler() {
+//        MyTask server = new MyTask();
+//        server.execute();
+//    }
 
     public WifiManager getWifiManager() {
         return wifiManager;
