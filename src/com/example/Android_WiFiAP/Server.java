@@ -28,27 +28,57 @@ public class Server {
     private BlockingQueue<String> mMessageQueue;
     public List<Client> mClients;
 
+    private ThreadGroup mThreadGroup;
     private final int mServerPort = 6666;
     private ServerSocket mServerSocket;
     private final int MAX_LENGTH_QUEUE = 1000;
     private Handler mTextViewHandler;
+    private Thread mServerThread;
+    private Thread mServerRecv;
 
     public Server(Handler _handler) {
+        mThreadGroup = new ThreadGroup("my thread group");
         mTextViewHandler = _handler;
         mClients = Collections.synchronizedList(new LinkedList<Client>());
         mMessageQueue = new ArrayBlockingQueue<String>(MAX_LENGTH_QUEUE);
-        new Thread(new ServerThread()).start();
-        new Thread(new ServerRecv()).start();
+        mServerThread = new Thread(mThreadGroup, new ServerThread());
+        mServerThread.start();
+        mServerRecv = new Thread(mThreadGroup, new ServerRecv());
+        mServerRecv.start();
     }
 
-    /*
-    @hide
-     */
-    private void closeSocket(Socket _sock) {
+    private synchronized void removeClient(Client _client) {
         try {
-            _sock.close();
+            _client.getSocket().close();
+            if (!mClients.remove(_client)) {
+                Log.d(LOG_D, "Error: Unsuccessful try to remove the client");
+            } else {
+                Log.d(LOG_D, "OK: Successful try to remove the client");
+            }
         } catch (IOException e) {
-            Log.d(LOG_D, "Error I/O:close Socket");
+            Log.d(LOG_D, "Error I/O: close socket " + e);
+        }
+    }
+
+    public synchronized void interruptAll() {
+        Log.d(LOG_D, "Main ServerThread interrupt " + mThreadGroup.activeCount());
+        try {
+            mServerSocket.close();
+        } catch (IOException e) {
+            Log.d(LOG_D, "Hz cto");
+        }
+        mThreadGroup.interrupt();
+    }
+
+    private synchronized void closeSockets() {
+        for (Client client : mClients) {
+            removeClient(client);
+        }
+        try {
+            mServerSocket.close();
+            Log.d(LOG_D, "OK: Succesfull try to close the server socket");
+        } catch (IOException e) {
+            Log.d(LOG_D, "Error I/O: Unsuccesfull try to close the server socket");
         }
     }
 
@@ -61,12 +91,21 @@ public class Server {
                     mTextViewHandler.sendMessage(Util.getMessageFromString(mMessageQueue.take(), "msg"));
                 } catch (InterruptedException e) {
                     Log.d(LOG_D, "Ne doljno bit' (obrabotano v while,hota hz) " + e);
+                    mThreadGroup.interrupt();
                 }
             }
+            Log.d(LOG_D, "OK:Interrupt ServerRecv");
         }
+
     }
 
     private class ServerThread implements Runnable {
+        private ThreadGroup mThreadGroup_local;
+
+        public ServerThread() {
+            mThreadGroup_local = new ThreadGroup(mThreadGroup, "my thread group LOCAL");
+        }
+
         @Override
         public void run() {
             try {
@@ -78,28 +117,34 @@ public class Server {
                     mClients.add(newClient);
                     Log.d(LOG_D, "New client: " + newClient.getIPAddress() + " port=" + newClient.getPort());
                     Log.d(LOG_D, "mClients.size()=" + mClients.size());
-                    Runnable run = new ServerHandler(socket_new_client);
-                    Thread t = new Thread(run);
-                    t.start();
+                    ServerHandler mServerHandler = new ServerHandler(newClient);
+                    Thread mServerHandlerThread = new Thread(mThreadGroup_local, mServerHandler);
+                    mServerHandlerThread.start();
                 }
             } catch (IOException e) {
                 Log.d(LOG_D, "IOException if an error occurs while creating the socket.\n" + e);
+            } finally {
+                Log.d(LOG_D, "ServerThread block finally");
+                closeSockets();
             }
+            Log.d(LOG_D, "Interrupt all Thread ServerThread2222");
+            mThreadGroup_local.interrupt();
+
         }
 
 
         private class ServerHandler implements Runnable {
-            private Socket mClientSocket;
+            private Client mClient;
 
-            private ServerHandler(Socket mClientSocket) {
-                this.mClientSocket = mClientSocket;
+            private ServerHandler(Client mClient) {
+                this.mClient = mClient;
             }
 
             @Override
             public void run() {
                 InputStream sin = null;
                 try {
-                    sin = mClientSocket.getInputStream();
+                    sin = mClient.getSocket().getInputStream();
                     DataInputStream in = new DataInputStream(sin);
                     String line = null;
                     while (!Thread.currentThread().isInterrupted()) {
@@ -107,10 +152,12 @@ public class Server {
                         mMessageQueue.add(line);
                         Log.d(LOG_D, "The dumb client just sent me this line : " + line);
                     }
+                    Log.d(LOG_D, "ServerHandler interrupted");
                 } catch (IOException e) {
-                    Log.d(LOG_D, "Error I/O " + e);
+                    Log.d(LOG_D, "OK:Error I/O " + e);
                 } finally {
-                    closeSocket(mClientSocket);
+                    Log.d(LOG_D, "Close client socket");
+                    removeClient(mClient);//TODO: возможно не надо. посмотреть козда i/o exception кидает readUTF
                 }
 
             }

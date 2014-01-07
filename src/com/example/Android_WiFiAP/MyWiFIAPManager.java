@@ -16,6 +16,7 @@ public class MyWiFIAPManager {
     private String name_ap;
     private String ip_server = "192.168.43.1";
     private String key;
+    private Server mServer;
 
     public MyWiFIAPManager(WifiManager _wifiManager, String _name_ap, String _key) {
         wifiManager = _wifiManager;
@@ -79,7 +80,11 @@ public class MyWiFIAPManager {
     }
 
     public void start(Handler handler) {
-        Server server = new Server(handler);
+        mServer = new Server(handler);
+    }
+
+    public void exit() {
+        mServer.interruptAll();
     }
 //    public void start_client_handler() {
 //        MyTask server = new MyTask();

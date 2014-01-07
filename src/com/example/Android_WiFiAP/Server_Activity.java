@@ -51,17 +51,21 @@ public class Server_Activity extends Activity {
         br = new BroadcastReceiver() {
             // действия при получении сообщений
             public void onReceive(Context context, Intent intent) {
+                if (intent.getIntExtra("wifi_state", 0) == 10) {
+                    Log.d(Server.LOG_D, "Try interruptAll");
+                    wifiManager.exit();
+                }
                 Log.d("Debug:info", "!!!!!!!!!" + intent.getAction());
             }
         };
         // создаем фильтр для BroadcastReceiver
-        IntentFilter intFilt = new IntentFilter(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
-        intFilt.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        IntentFilter intFilt = new IntentFilter();
+//        intFilt.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         intFilt.addAction("android.net.wifi.WIFI_AP_STATE_CHANGED");
-        intFilt.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
-        intFilt.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-        intFilt.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
-        intFilt.addAction(WifiManager.ACTION_PICK_WIFI_NETWORK);
+//        intFilt.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
+//        intFilt.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+//        intFilt.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
+//        intFilt.addAction(WifiManager.ACTION_PICK_WIFI_NETWORK);
 
         Handler h = new Handler() {
             @Override
@@ -72,7 +76,7 @@ public class Server_Activity extends Activity {
             }
         };
         // регистрируем (включаем) BroadcastReceiver
-        //  registerReceiver(br, intFilt);
+        registerReceiver(br, intFilt);
         wifiManager.start(h);
 //        wifiManager.start_client_handler();
 
