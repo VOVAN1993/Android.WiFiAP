@@ -29,6 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/ping_button"
+            android:enabled="false"
             android:id="@+id/ping_button"
             android:onClick="onClickButton"/>
 </LinearLayout>

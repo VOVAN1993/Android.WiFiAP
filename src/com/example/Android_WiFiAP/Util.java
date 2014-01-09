@@ -122,22 +122,15 @@ public class Util {
             long total = 0L;
             Date date1 = new Date();
             for (int i = 0; i < count; i++) {
-
                 out.writeInt(5);
                 out.flush();
                 int ret_int = in.readInt();
-                Thread.currentThread().sleep(1000);
-//                long diff = date2.getTime()-date1.getTime();
-//                total+=diff;
-//                Log.d(Server_Activity.LOG_D,"ping ="+diff);
             }
             Date date2 = new Date();
             total = date2.getTime() - date1.getTime();
             Log.d(Server_Activity.LOG_D, "ping =" + total / count);
         } catch (IOException e) {
             Log.d(Server.LOG_D, "OK:Error I/O " + e);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         } finally {
             Log.d(Server.LOG_D, "Close client socket");
         }
