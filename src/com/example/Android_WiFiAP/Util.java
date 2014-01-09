@@ -4,20 +4,19 @@ import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 
 /**
  * Created by root on 02.01.14.
  */
 public class Util {
-    public static String getLocalIpAddressString() throws SocketException {
+    public final static String getLocalIpAddressString() throws SocketException {
         try {
             for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
                 NetworkInterface intf = en.nextElement();
@@ -36,7 +35,7 @@ public class Util {
         return null;
     }
 
-    public static ArrayList<ClientScanResult> getClientList() {
+    public final static ArrayList<ClientScanResult> getClientList() {
         BufferedReader br = null;
         ArrayList<ClientScanResult> result = null;
 
@@ -69,12 +68,58 @@ public class Util {
         return result;
     }
 
-    public static Message getMessageFromString(String str, String key) {
+    public final static Message getMessageFromString(String str, String key) {
         Bundle messageBundle = new Bundle();
         messageBundle.putString(key, str);
 
         Message message = new Message();
         message.setData(messageBundle);
         return message;
+    }
+
+    public final static String ping(String _ip) {
+
+        try {
+            String command = "ping -c 20 " + _ip.substring(1);
+            Process p = null;
+            p = Runtime.getRuntime().exec(command);
+            int status = p.waitFor();
+            InputStream input = p.getInputStream();
+            BufferedReader in = new BufferedReader(new InputStreamReader(input));
+            StringBuffer buffer = new StringBuffer();
+            String line = "";
+            while ((line = in.readLine()) != null) {
+                buffer.append(line);
+                buffer.append("\n");
+            }
+            String bufferStr = buffer.toString();
+            return bufferStr;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    //
+    public final static void testSpeed(DataInputStream in, DataOutputStream out) {
+        try {
+            String line = null;
+            int t = 0;
+            long count = in.readLong();
+            for (int i = 0; i < count; i++) {
+                line = in.readUTF();
+                t += line.length();
+            }
+            Log.d(Server.LOG_D, new Integer(t).toString() + " " + count);
+            Date curDate = new Date();
+            out.writeLong(12);
+            Log.d(Server.LOG_D, "Date=" + curDate);
+        } catch (IOException e) {
+            Log.d(Server.LOG_D, "OK:Error I/O " + e);
+        } finally {
+            Log.d(Server.LOG_D, "Close client socket");
+        }
     }
 }

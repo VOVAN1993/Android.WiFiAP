@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 
@@ -134,11 +135,16 @@ public class Server_Activity extends Activity {
                 //TODO: сделать exit  в другом потоке
                 break;
             case R.id.button1:
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
+                Log.d(LOG_D, "Try ping:");
+                InetAddress ip = wifiManager.getIpClient();
+                Log.d(LOG_D, "IP client = " + ip.toString());
+                String ret = Util.ping(ip.toString());
+                Log.d(LOG_D, ret);
+//                Intent intent = new Intent(this, MainActivity.class);
+//                startActivity(intent);
                 break;
             default:
-                Log.d(LOG_D, "Unknow button");
+                Log.d(LOG_D, "Unknown button");
                 break;
         }
 

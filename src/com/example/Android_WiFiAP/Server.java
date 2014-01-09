@@ -4,9 +4,7 @@ package com.example.Android_WiFiAP;
 import android.os.Handler;
 import android.util.Log;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -142,12 +140,20 @@ public class Server {
 
             @Override
             public void run() {
-                InputStream sin = null;
                 try {
-                    sin = mClient.getSocket().getInputStream();
+                    InputStream sin = mClient.getSocket().getInputStream();
                     DataInputStream in = new DataInputStream(sin);
+                    OutputStream sout = mClient.getSocket().getOutputStream();
+
+                    // Конвертируем потоки в другой тип, чтоб легче обрабатывать текстовые сообщения.
+                    DataOutputStream out = new DataOutputStream(sout);
                     String line = null;
+                    int t = 0;
                     while (!Thread.currentThread().isInterrupted()) {
+                        if (t == 0) {
+                            Util.testSpeed(in, out);
+                            t++;
+                        }
                         line = in.readUTF(); // ожидаем пока клиент пришлет строку текста.
                         mMessageQueue.add(line);
                         Log.d(LOG_D, "The dumb client just sent me this line : " + line);
@@ -167,5 +173,10 @@ public class Server {
 
     public int getServerPort() {
         return mServerPort;
+    }
+
+    public InetAddress getClient() {
+        assert mClients.size() > 0;
+        return mClients.get(0).getIPAddress();
     }
 }
