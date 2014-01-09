@@ -7,7 +7,9 @@ import android.util.Log;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.Socket;
 import java.net.SocketException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
@@ -16,6 +18,12 @@ import java.util.Enumeration;
  * Created by root on 02.01.14.
  */
 public class Util {
+    static public void customFormat(String pattern, double value) {
+        DecimalFormat myFormatter = new DecimalFormat(pattern);
+        String output = myFormatter.format(value);
+        System.out.println(value + "  " + pattern + "  " + output);
+    }
+
     public final static String getLocalIpAddressString() throws SocketException {
         try {
             for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
@@ -77,6 +85,7 @@ public class Util {
         return message;
     }
 
+
     public final static String ping(String _ip) {
 
         try {
@@ -102,7 +111,38 @@ public class Util {
         return null;
     }
 
-    //
+    public final static void ping_over_socket(Socket socket, int count) {
+
+        //незабудь в главном потоке чтения закоментить все!!!
+        try {
+            InputStream sin = socket.getInputStream();
+            DataInputStream in = new DataInputStream(sin);
+            OutputStream sout = socket.getOutputStream();
+            DataOutputStream out = new DataOutputStream(sout);
+            long total = 0L;
+            Date date1 = new Date();
+            for (int i = 0; i < count; i++) {
+
+                out.writeInt(5);
+                out.flush();
+                int ret_int = in.readInt();
+                Thread.currentThread().sleep(1000);
+//                long diff = date2.getTime()-date1.getTime();
+//                total+=diff;
+//                Log.d(Server_Activity.LOG_D,"ping ="+diff);
+            }
+            Date date2 = new Date();
+            total = date2.getTime() - date1.getTime();
+            Log.d(Server_Activity.LOG_D, "ping =" + total / count);
+        } catch (IOException e) {
+            Log.d(Server.LOG_D, "OK:Error I/O " + e);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            Log.d(Server.LOG_D, "Close client socket");
+        }
+    }
+
     public final static void testSpeed(DataInputStream in, DataOutputStream out) {
         try {
             String line = null;

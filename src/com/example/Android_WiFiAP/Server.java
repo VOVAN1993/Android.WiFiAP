@@ -150,10 +150,6 @@ public class Server {
                     String line = null;
                     int t = 0;
                     while (!Thread.currentThread().isInterrupted()) {
-                        if (t == 0) {
-                            Util.testSpeed(in, out);
-                            t++;
-                        }
                         line = in.readUTF(); // ожидаем пока клиент пришлет строку текста.
                         mMessageQueue.add(line);
                         Log.d(LOG_D, "The dumb client just sent me this line : " + line);
@@ -175,8 +171,8 @@ public class Server {
         return mServerPort;
     }
 
-    public InetAddress getClient() {
+    public AbstractClient getClient() {
         assert mClients.size() > 0;
-        return mClients.get(0).getIPAddress();
+        return mClients.get(0);
     }
 }

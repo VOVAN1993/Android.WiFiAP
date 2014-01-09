@@ -7,7 +7,7 @@ import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.InetAddress;
+import java.net.Socket;
 import java.net.SocketException;
 
 
@@ -88,10 +88,14 @@ public class MyWiFIAPManager {
         mServer.interruptAll();
     }
 
-    public InetAddress getIpClient() {
-        return mServer.getClient();
+    public AbstractClient getIpClient() {
+        AbstractClient client = mServer.getClient();
+        return client;
     }
 
+    public Socket getSocketClient() {
+        return mServer.getClient().getSocket();
+    }
 //    public void start_client_handler() {
 //        MyTask server = new MyTask();
 //        server.execute();

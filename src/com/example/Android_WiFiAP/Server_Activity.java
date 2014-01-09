@@ -14,7 +14,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 
@@ -126,7 +128,7 @@ public class Server_Activity extends Activity {
         Log.d(LOG_D_FOR_ACT, "Server.onDestroy");
     }
 
-    public void onClickButton(View v) {
+    public void onClickButton(View v) throws IOException {
         switch (v.getId()) {
             case R.id.exit_button:
                 Log.d(Server.LOG_D, "Begin \"The end\" ");
@@ -136,13 +138,23 @@ public class Server_Activity extends Activity {
                 break;
             case R.id.button1:
                 Log.d(LOG_D, "Try ping:");
-                InetAddress ip = wifiManager.getIpClient();
+                InetAddress ip = wifiManager.getIpClient().getIPAddress();
                 Log.d(LOG_D, "IP client = " + ip.toString());
                 String ret = Util.ping(ip.toString());
                 Log.d(LOG_D, ret);
 //                Intent intent = new Intent(this, MainActivity.class);
 //                startActivity(intent);
                 break;
+            case R.id.ping_button:
+                Log.d(LOG_D, "Try ping over socket");
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Socket socket = wifiManager.getSocketClient();
+                        Util.ping_over_socket(wifiManager.getSocketClient(), 10);
+                    }
+                }).start();
+
             default:
                 Log.d(LOG_D, "Unknown button");
                 break;
