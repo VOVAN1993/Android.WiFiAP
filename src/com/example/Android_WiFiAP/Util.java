@@ -8,7 +8,6 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
-import java.net.SocketException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,7 +23,8 @@ public class Util {
         System.out.println(value + "  " + pattern + "  " + output);
     }
 
-    public final static String getLocalIpAddressString() throws SocketException {
+    public final static String getLocalIpAddressString() {
+        String ans = "";
         try {
             for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
                 NetworkInterface intf = en.nextElement();
@@ -32,15 +32,16 @@ public class Util {
                     InetAddress inetAddress = enumIpAddr.nextElement();
                     if (!inetAddress.isLoopbackAddress()) {
                         String ip = inetAddress.getHostAddress().toString();
-                        if (inetAddress.getHostAddress().toString().matches("..:..:..:.."))
-                            Log.d("Debug:info!!!:", inetAddress.getHostAddress().toString());
+                        // if (inetAddress.getHostAddress().toString().matches("..:..:..:.."))
+                        ans += inetAddress.getHostAddress().toString();
+                        ans += '\n';
                     }
                 }
             }
         } catch (Exception ex) {
             Log.e("Debug:IPADDRESS", ex.getMessage());
         }
-        return null;
+        return ans;
     }
 
     public final static ArrayList<ClientScanResult> getClientList() {
@@ -142,7 +143,12 @@ public class Util {
         Log.d(Server_Activity.LOG_D, socket.getPort() + mess);
         out.writeUTF(mess);
         out.flush();
+    }
 
+    public final static void send(DataOutputStream out, String mess, int port) throws IOException {
+        Log.d(Server_Activity.LOG_D, port + mess);
+        out.writeUTF(mess);
+        out.flush();
     }
 
     public final static void testSpeed(DataInputStream in, DataOutputStream out) {

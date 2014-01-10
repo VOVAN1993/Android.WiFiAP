@@ -48,14 +48,17 @@ public class MainActivity extends Activity {
     }
 
     public void onClickButton(View view) {
+        Intent next = null;
         switch (view.getId()) {
             case R.id.client_button:
                 Log.d(LOG_D, "Press button_client");
+                next = new Intent(this, ClientActivity.class);
+                startActivity(next);
                 break;
             case R.id.server_button:
                 Log.d(LOG_D, "Press button_server");
-                Intent intent = new Intent(this, Server_Activity.class);
-                startActivity(intent);
+                next = new Intent(this, Server_Activity.class);
+                startActivity(next);
                 break;
         }
     }

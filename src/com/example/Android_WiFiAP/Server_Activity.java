@@ -51,7 +51,16 @@ public class Server_Activity extends Activity {
                 e.printStackTrace();
             }
         }
-
+        Handler h = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                String chatLine = msg.getData().getString("msg");
+                textView1.append(chatLine);
+                textView1.append("\n");
+            }
+        };
+        h.sendMessage(Util.getMessageFromString("My Server " + Util.getLocalIpAddressString(), "msg"));
+        Log.d(LOG_D, Util.getLocalIpAddressString());
         br = new BroadcastReceiver() {
             // действия при получении сообщений
             public void onReceive(Context context, Intent intent) {
@@ -71,14 +80,7 @@ public class Server_Activity extends Activity {
 //        intFilt.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
 //        intFilt.addAction(WifiManager.ACTION_PICK_WIFI_NETWORK);
 
-        Handler h = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                String chatLine = msg.getData().getString("msg");
-                textView1.append(chatLine);
-                textView1.append("\n");
-            }
-        };
+
         // регистрируем (включаем) BroadcastReceiver
         registerReceiver(br, intFilt);
         wifiManager.start(h);

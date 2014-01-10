@@ -141,6 +141,7 @@ public class Server {
                 while (!Thread.currentThread().isInterrupted()) {
                     Log.d(LOG_D, "Waiting for a client...");
                     Socket socket_new_client = mServerSocket.accept();
+                    mTextViewHandler.sendMessage(Util.getMessageFromString("client " + socket_new_client.getInetAddress().toString(), "msg"));
                     Client newClient = new Client(socket_new_client.getPort(), socket_new_client.getInetAddress(), socket_new_client);
                     mClients.add(newClient);
                     Log.d(LOG_D, "New client: " + newClient.getIPAddress() + " port=" + newClient.getPort());
