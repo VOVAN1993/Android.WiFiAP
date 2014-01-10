@@ -136,6 +136,15 @@ public class Util {
         }
     }
 
+    public final static void send(Socket socket, String mess) throws IOException {
+        OutputStream sout = socket.getOutputStream();
+        DataOutputStream out = new DataOutputStream(sout);
+        Log.d(Server_Activity.LOG_D, socket.getPort() + mess);
+        out.writeUTF(mess);
+        out.flush();
+
+    }
+
     public final static void testSpeed(DataInputStream in, DataOutputStream out) {
         try {
             String line = null;

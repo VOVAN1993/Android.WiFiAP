@@ -3,16 +3,14 @@ package com.example.Android_WiFiAP;
 
 import android.os.Handler;
 import android.util.Log;
+import android.util.Pair;
 
 import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.*;
 
 public class Server {
     public static final String LOG_D = "Debug:Server";
@@ -23,7 +21,7 @@ public class Server {
         }
     }
 
-    private BlockingQueue<String> mMessageQueue;
+    private BlockingQueue<Pair<String, Client>> mMessageQueue;
     public List<Client> mClients;
 
     private ThreadGroup mThreadGroup;
@@ -37,8 +35,9 @@ public class Server {
     public Server(Handler _handler) {
         mThreadGroup = new ThreadGroup("my thread group");
         mTextViewHandler = _handler;
-        mClients = Collections.synchronizedList(new LinkedList<Client>());
-        mMessageQueue = new ArrayBlockingQueue<String>(MAX_LENGTH_QUEUE);
+        mClients = new CopyOnWriteArrayList();
+//        mClients = Collections.synchronizedList(new LinkedList<Client>());
+        mMessageQueue = new ArrayBlockingQueue<Pair<String, Client>>(MAX_LENGTH_QUEUE);
         mServerThread = new Thread(mThreadGroup, new ServerThread());
         mServerThread.start();
         mServerRecv = new Thread(mThreadGroup, new ServerRecv());
@@ -84,17 +83,48 @@ public class Server {
 
         @Override
         public void run() {
+            ExecutorService pool = Executors.newFixedThreadPool(5);
             while (!Thread.currentThread().isInterrupted() || !mMessageQueue.isEmpty()) {
                 try {
-                    mTextViewHandler.sendMessage(Util.getMessageFromString(mMessageQueue.take(), "msg"));
+                    Pair<String, Client> pair = mMessageQueue.take();
+                    Log.d(LOG_D, "Send message: " + pair.first + " from " + pair.second);
+                    Future f = pool.submit(new ServerSend(pair.second, mClients, pair.first));
+                    mTextViewHandler.sendMessage(Util.getMessageFromString(pair.first, "msg"));
                 } catch (InterruptedException e) {
                     Log.d(LOG_D, "Ne doljno bit' (obrabotano v while,hota hz) " + e);
                     mThreadGroup.interrupt();
                 }
             }
-            Log.d(LOG_D, "OK:Interrupt ServerRecv");
+            pool.shutdown();
+            Log.d(LOG_D, "OK:Interrupt ServerRecv. Pool is shutdown");
         }
 
+        private class ServerSend implements Runnable {
+            private Client clientFrom;
+            private List<Client> listClients;
+            private String mess;
+
+            private ServerSend(Client clientFrom, List<Client> _listClients, String mess) {
+                this.clientFrom = clientFrom;
+                this.listClients = _listClients;
+                this.mess = mess;
+            }
+
+            @Override
+            public void run() {
+                Log.d(LOG_D, "TUT");
+                for (Client client : listClients) {
+                    if (!(client.getPort() == clientFrom.getPort() && client.getIPAddress().equals(clientFrom.getIPAddress()))) {
+                        try {
+                            Util.send(client.getSocket(), mess);
+                            Log.d(LOG_D, "Send to " + client.getIPAddress().toString() + client.getPort());
+                        } catch (IOException e) {
+                            Log.d(LOG_D, "Not send.Client is removed ip=" + client.getIPAddress().toString());
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private class ServerThread implements Runnable {
@@ -145,13 +175,11 @@ public class Server {
                     DataInputStream in = new DataInputStream(sin);
                     OutputStream sout = mClient.getSocket().getOutputStream();
 
-                    // Конвертируем потоки в другой тип, чтоб легче обрабатывать текстовые сообщения.
                     DataOutputStream out = new DataOutputStream(sout);
                     String line = null;
-                    int t = 0;
                     while (!Thread.currentThread().isInterrupted()) {
                         line = in.readUTF(); // ожидаем пока клиент пришлет строку текста.
-                        mMessageQueue.add(line);
+                        mMessageQueue.add(new Pair<String, Client>(line, mClient));
                         Log.d(LOG_D, "The dumb client just sent me this line : " + line);
                     }
                     Log.d(LOG_D, "ServerHandler interrupted");
