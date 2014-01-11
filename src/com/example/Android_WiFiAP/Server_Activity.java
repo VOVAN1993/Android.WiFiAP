@@ -25,8 +25,9 @@ public class Server_Activity extends Activity {
     public static final String LOG_D_FOR_ACT = "Debug:Activitys";
     TextView textView1;
     MyWiFIAPManager wifiManager;
-    BroadcastReceiver br;
+    private BroadcastReceiver br;
     Button button, exitButton;
+    private boolean isRotate;
 
     /**
      * Called when the activity is first created.
@@ -36,14 +37,19 @@ public class Server_Activity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        isRotate = false;
+        wifiManager = null;
+        if (savedInstanceState != null) {
+            isRotate = savedInstanceState.getBoolean("isRotate");
+            wifiManager = (MyWiFIAPManager) getLastNonConfigurationInstance();
+        }
         Log.d(LOG_D, "Start ServerActivity");
         Log.d(LOG_D_FOR_ACT, "ServerActivity.onCreate");
         textView1 = (TextView) findViewById(R.id.chat);
         button = (Button) findViewById(R.id.button1);
         exitButton = (Button) findViewById(R.id.exit_button);
         boolean is_server = true;
-        wifiManager = null;
-        if (is_server) {
+        if (is_server && !isRotate) {
             wifiManager = new MyWiFIAPManager((WifiManager) getSystemService(Context.WIFI_SERVICE), "vova", "12345678");
             try {
                 wifiManager.createWifiAccessPoint();
@@ -51,7 +57,7 @@ public class Server_Activity extends Activity {
                 e.printStackTrace();
             }
         }
-        Handler h = new Handler() {
+        final Handler h = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 String chatLine = msg.getData().getString("msg");
@@ -71,21 +77,19 @@ public class Server_Activity extends Activity {
                 Log.d("Debug:info", "!!!!!!!!!" + intent.getAction());
             }
         };
-        // создаем фильтр для BroadcastReceiver
         IntentFilter intFilt = new IntentFilter();
-//        intFilt.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         intFilt.addAction("android.net.wifi.WIFI_AP_STATE_CHANGED");
-//        intFilt.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
-//        intFilt.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-//        intFilt.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
-//        intFilt.addAction(WifiManager.ACTION_PICK_WIFI_NETWORK);
-
-
-        // регистрируем (включаем) BroadcastReceiver
         registerReceiver(br, intFilt);
-        wifiManager.start(h);
-//        wifiManager.start_client_handler();
 
+        if (!isRotate) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    wifiManager.start(h);
+                }
+            }).start();
+
+        }
     }
     private void scan() {
         ArrayList<ClientScanResult> clients = Util.getClientList();
@@ -120,14 +124,27 @@ public class Server_Activity extends Activity {
 
     @Override
     protected void onStop() {
-        super.onStop();
         Log.d(LOG_D_FOR_ACT, "Server.onStop");
+        super.onStop();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(br);
         Log.d(LOG_D_FOR_ACT, "Server.onDestroy");
+    }
+
+
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        return wifiManager;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("isRotate", true);
     }
 
     public void onClickButton(View v) throws IOException {

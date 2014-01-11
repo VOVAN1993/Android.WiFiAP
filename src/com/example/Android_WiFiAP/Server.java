@@ -42,6 +42,22 @@ public class Server {
         mServerThread.start();
         mServerRecv = new Thread(mThreadGroup, new ServerRecv());
         mServerRecv.start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int i = 0;
+                while (true) {
+                    try {
+                        Thread.currentThread().sleep(8000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    Log.d(LOG_D, new Integer(i).toString());
+                    i++;
+                }
+            }
+        }).start();
     }
 
     private synchronized void removeClient(Client _client) {
@@ -60,7 +76,8 @@ public class Server {
     public synchronized void interruptAll() {
         Log.d(LOG_D, "Main ServerThread interrupt " + mThreadGroup.activeCount());
         try {
-            mServerSocket.close();
+            if (mServerSocket != null)
+                mServerSocket.close();
         } catch (IOException e) {
             Log.d(LOG_D, "Hz cto");
         }
@@ -72,8 +89,12 @@ public class Server {
             removeClient(client);
         }
         try {
-            mServerSocket.close();
+            if (mServerSocket != null)
+
+                if (mServerSocket != null) {
+                    mServerSocket.close();
             Log.d(LOG_D, "OK: Succesfull try to close the server socket");
+                }
         } catch (IOException e) {
             Log.d(LOG_D, "Error I/O: Unsuccesfull try to close the server socket");
         }
@@ -112,7 +133,6 @@ public class Server {
 
             @Override
             public void run() {
-                Log.d(LOG_D, "TUT");
                 for (Client client : listClients) {
                     if (!(client.getPort() == clientFrom.getPort() && client.getIPAddress().equals(clientFrom.getIPAddress()))) {
                         try {
@@ -180,8 +200,10 @@ public class Server {
                     String line = null;
                     while (!Thread.currentThread().isInterrupted()) {
                         line = in.readUTF(); // ожидаем пока клиент пришлет строку текста.
+
                         mMessageQueue.add(new Pair<String, Client>(line, mClient));
                         Log.d(LOG_D, "The dumb client just sent me this line : " + line);
+
                     }
                     Log.d(LOG_D, "ServerHandler interrupted");
                 } catch (IOException e) {

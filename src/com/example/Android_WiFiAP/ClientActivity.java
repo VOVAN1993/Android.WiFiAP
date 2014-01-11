@@ -17,10 +17,17 @@ public class ClientActivity extends Activity {
     private EditText editText;
     private TextView textView;
     private Client client;
+    private boolean isRotate;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.client);
+
+        isRotate = false;
+        if (savedInstanceState != null) {
+            isRotate = savedInstanceState.getBoolean("isRotate");
+            client = (Client) getLastNonConfigurationInstance();
+        }
         editText = (EditText) findViewById(R.id.editText);
         textView = (TextView) findViewById(R.id.chat);
         Handler handler_for_chat = new Handler() {
@@ -31,8 +38,21 @@ public class ClientActivity extends Activity {
                 textView.append("\n");
             }
         };
-        client = new Client(handler_for_chat);
-        client.startWork();
+        if (!isRotate) {
+            client = new Client(handler_for_chat);
+            client.startWork();
+        }
+    }
+
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        return client;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("isRotate", true);
     }
 
     public void onClickButton(View v) {
