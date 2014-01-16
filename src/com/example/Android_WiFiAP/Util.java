@@ -1,5 +1,7 @@
 package com.example.Android_WiFiAP;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
@@ -17,13 +19,15 @@ import java.util.Enumeration;
  * Created by root on 02.01.14.
  */
 public class Util {
+    static Intent intent_for_chat = new Intent(Server_Activity.BROADCAST_TEXT);
+
     static public void customFormat(String pattern, double value) {
         DecimalFormat myFormatter = new DecimalFormat(pattern);
         String output = myFormatter.format(value);
         System.out.println(value + "  " + pattern + "  " + output);
     }
 
-    public final static String getLocalIpAddressString() {
+    public static String getLocalIpAddressString() {
         String ans = "";
         try {
             for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
@@ -44,7 +48,7 @@ public class Util {
         return ans;
     }
 
-    public final static ArrayList<ClientScanResult> getClientList() {
+    public static ArrayList<ClientScanResult> getClientList() {
         BufferedReader br = null;
         ArrayList<ClientScanResult> result = null;
 
@@ -77,7 +81,7 @@ public class Util {
         return result;
     }
 
-    public final static Message getMessageFromString(String str, String key) {
+    public static Message getMessageFromString(String str, String key) {
         Bundle messageBundle = new Bundle();
         messageBundle.putString(key, str);
 
@@ -87,7 +91,7 @@ public class Util {
     }
 
 
-    public final static String ping(String _ip) {
+    public static String ping(String _ip) {
 
         try {
             String command = "ping -c 20 " + _ip.substring(1);
@@ -112,7 +116,7 @@ public class Util {
         return null;
     }
 
-    public final static void ping_over_socket(Socket socket, int count) {
+    public static void ping_over_socket(Socket socket, int count) {
 
         //незабудь в главном потоке чтения закоментить все!!!
         try {
@@ -137,7 +141,7 @@ public class Util {
         }
     }
 
-    public final static void send(Socket socket, String mess) throws IOException {
+    public static void send(Socket socket, String mess) throws IOException {
         OutputStream sout = socket.getOutputStream();
         DataOutputStream out = new DataOutputStream(sout);
         Log.d(Server_Activity.LOG_D, socket.getPort() + mess);
@@ -145,13 +149,13 @@ public class Util {
         out.flush();
     }
 
-    public final static void send(DataOutputStream out, String mess, int port) throws IOException {
+    public static void send(DataOutputStream out, String mess, int port) throws IOException {
         Log.d(Server_Activity.LOG_D, port + mess);
         out.writeUTF(mess);
         out.flush();
     }
 
-    public final static void testSpeed(DataInputStream in, DataOutputStream out) {
+    public static void testSpeed(DataInputStream in, DataOutputStream out) {
         try {
             String line = null;
             int t = 0;
@@ -169,5 +173,11 @@ public class Util {
         } finally {
             Log.d(Server.LOG_D, "Close client socket");
         }
+    }
+
+
+    public static void sendToTextViewServer(String mess, Context mContext) {
+        intent_for_chat.putExtra(Server_Activity.PARAM_MESS, mess);
+        mContext.sendBroadcast(intent_for_chat);
     }
 }

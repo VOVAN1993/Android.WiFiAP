@@ -1,24 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
 
     <TextView android:layout_width="wrap_content"
-              android:layout_height="145dp"
+              android:layout_height="match_parent"
               android:id="@+id/chat"
+              android:freezesText="true"
               android:layout_gravity="center_horizontal"/>
-    <EditText
+
+    <LinearLayout android:layout_gravity="bottom" android:layout_width="wrap_content"
+                  android:layout_height="wrap_content">
+        <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_weight="20"
+            android:width="300dp"
             android:id="@+id/editText"/>
     <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/send_button"
             android:id="@+id/send_button"
-            android:onClick="onClickButton"/>
+            android:layout_weight="1"
+            android:layout_gravity="right"
+            android:onClick="clientonClickButton"/>
+        <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/exit_button"
+                android:id="@+id/exit_button"
 
-</LinearLayout>
+                android:layout_gravity="right"
+                android:onClick="clientonClickButton"/>
+    </LinearLayout>
+</FrameLayout>

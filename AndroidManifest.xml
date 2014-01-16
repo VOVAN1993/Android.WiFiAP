@@ -10,10 +10,11 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
     <uses-sdk android:minSdkVersion="6"/>
     <application android:label="@string/app_name" android:icon="@drawable/ic_launcher">
         <activity android:name=".MainActivity">
-        <intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
@@ -24,5 +25,7 @@
         </activity>
         <activity android:name=".ClientActivity" android:label="@string/client_act"/>
 
+        <service android:name=".ServerWorkService"/>
+        <service android:name=".ClientWorkService"/>
     </application>
 </manifest>

@@ -15,7 +15,7 @@ public abstract class AbstractClient {
         this.mSocket = mSocket;
     }
 
-    protected AbstractClient(int mPort, InetAddress mIPAddress, Socket mSocket) {
+    AbstractClient(int mPort, InetAddress mIPAddress, Socket mSocket) {
         this.mPort = mPort;
         this.mIPAddress = mIPAddress;
         this.mSocket = mSocket;

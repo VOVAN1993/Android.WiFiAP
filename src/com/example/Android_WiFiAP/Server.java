@@ -1,6 +1,8 @@
 package com.example.Android_WiFiAP;
 
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 import android.util.Pair;
@@ -15,15 +17,16 @@ import java.util.concurrent.*;
 public class Server {
     public static final String LOG_D = "Debug:Server";
 
+
     private class Client extends AbstractClient {
         protected Client(int _port, InetAddress _IPAddress, Socket _socket) {
             super(_port, _IPAddress, _socket);
         }
     }
 
-    private BlockingQueue<Pair<String, Client>> mMessageQueue;
+    private final BlockingQueue<Pair<String, Client>> mMessageQueue;
     public List<Client> mClients;
-
+    private Intent intent_for_chat;
     private ThreadGroup mThreadGroup;
     private final int mServerPort = 6666;
     private ServerSocket mServerSocket;
@@ -31,8 +34,11 @@ public class Server {
     private Handler mTextViewHandler;
     private Thread mServerThread;
     private Thread mServerRecv;
+    private Context mContext;
 
-    public Server(Handler _handler) {
+    public Server(Handler _handler, Context _context) {
+        mContext = _context;
+        intent_for_chat = new Intent(Server_Activity.BROADCAST_TEXT);
         mThreadGroup = new ThreadGroup("my thread group");
         mTextViewHandler = _handler;
         mClients = new CopyOnWriteArrayList();
@@ -42,22 +48,6 @@ public class Server {
         mServerThread.start();
         mServerRecv = new Thread(mThreadGroup, new ServerRecv());
         mServerRecv.start();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int i = 0;
-                while (true) {
-                    try {
-                        Thread.currentThread().sleep(8000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    Log.d(LOG_D, new Integer(i).toString());
-                    i++;
-                }
-            }
-        }).start();
     }
 
     private synchronized void removeClient(Client _client) {
@@ -68,6 +58,7 @@ public class Server {
             } else {
                 Log.d(LOG_D, "OK: Successful try to remove the client");
             }
+            Log.d(LOG_D, "Count client after remove" + mClients.size());
         } catch (IOException e) {
             Log.d(LOG_D, "Error I/O: close socket " + e);
         }
@@ -110,7 +101,9 @@ public class Server {
                     Pair<String, Client> pair = mMessageQueue.take();
                     Log.d(LOG_D, "Send message: " + pair.first + " from " + pair.second);
                     Future f = pool.submit(new ServerSend(pair.second, mClients, pair.first));
-                    mTextViewHandler.sendMessage(Util.getMessageFromString(pair.first, "msg"));
+                    intent_for_chat.putExtra(Server_Activity.PARAM_MESS, pair.first);
+                    mContext.sendBroadcast(intent_for_chat);
+//                    mTextViewHandler.sendMessage(Util.getMessageFromString(pair.first, "msg"));
                 } catch (InterruptedException e) {
                     Log.d(LOG_D, "Ne doljno bit' (obrabotano v while,hota hz) " + e);
                     mThreadGroup.interrupt();
@@ -161,7 +154,9 @@ public class Server {
                 while (!Thread.currentThread().isInterrupted()) {
                     Log.d(LOG_D, "Waiting for a client...");
                     Socket socket_new_client = mServerSocket.accept();
-                    mTextViewHandler.sendMessage(Util.getMessageFromString("client " + socket_new_client.getInetAddress().toString(), "msg"));
+//                    mTextViewHandler.sendMessage(Util.getMessageFromString("client " + socket_new_client.getInetAddress().toString(), "msg"));
+                    intent_for_chat.putExtra(Server_Activity.PARAM_MESS, "client " + socket_new_client.getInetAddress().toString());
+                    mContext.sendBroadcast(intent_for_chat);
                     Client newClient = new Client(socket_new_client.getPort(), socket_new_client.getInetAddress(), socket_new_client);
                     mClients.add(newClient);
                     Log.d(LOG_D, "New client: " + newClient.getIPAddress() + " port=" + newClient.getPort());
@@ -210,6 +205,7 @@ public class Server {
                     Log.d(LOG_D, "OK:Error I/O " + e);
                 } finally {
                     Log.d(LOG_D, "Close client socket");
+                    Log.d(LOG_D, "count clients = " + mClients.size());
                     removeClient(mClient);//TODO: возможно не надо. посмотреть козда i/o exception кидает readUTF
                 }
 
@@ -222,8 +218,13 @@ public class Server {
         return mServerPort;
     }
 
+    public int getCountClients() {
+        return mClients.size();
+    }
+
     public AbstractClient getClient() {
         assert mClients.size() > 0;
         return mClients.get(0);
     }
+
 }
