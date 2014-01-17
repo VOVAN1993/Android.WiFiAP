@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.util.Log;
+import com.example.Android_WiFiAP.Utils.NetInfo;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -35,6 +36,7 @@ public class Client {
     public static final String BROADCAST_CLIENT_FOR_QUEUE = "com.example.Android_WiFi_AP.queue";
     private Context mContext;
     private ExecutorService mainPoll;
+    private NetInfo netInfo;
 
     public Client(Handler _handler_for_text_view, Context _context) {
         mThreadGroup = new ThreadGroup("my thread group");
@@ -43,9 +45,12 @@ public class Client {
         handler_for_text_view = _handler_for_text_view;
         queue = new ArrayBlockingQueue<String>(1000);
         intent_for_chat = new Intent(ClientActivity.BROADCAST_CHAT);
+
+        netInfo = new NetInfo();
+        netInfo.getWifiInfo(mContext);
         server_port = 6666;
         try {
-            server_ip = InetAddress.getByName("192.168.43.1");
+            server_ip = InetAddress.getByName(netInfo.getGatewayIp());
         } catch (UnknownHostException e) {
             Log.d(ClientActivity.LOG_CLIENT, "UnknownHostException");
         }
@@ -73,6 +78,8 @@ public class Client {
 //            mainPoll.submit(new Sender(new DataOutputStream(socket.getOutputStream())));
 //            mainPoll.submit(new Recv(new DataInputStream(socket.getInputStream())));
         } catch (IOException e) {
+            intent_for_chat.putExtra(ClientActivity.PARAM_MESS, "Connect Failed");
+            mContext.sendBroadcast(intent_for_chat);
             Log.d(ClientActivity.LOG_CLIENT, "I/O Error:" + e.getMessage());
         } finally {
             mainPoll.shutdown();

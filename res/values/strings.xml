@@ -4,4 +4,9 @@
     <string name="my_button1">My button</string>
     <string name="exit_button">Exit</string>
     <string name="ping_button">Ping</string>
+    <string name="send_button">Send</string>
+    <string name="count_clients_button">Count Clients</string>
+    <string name="server_act">Server</string>
+    <string name="client_act">Client</string>
+
 </resources>

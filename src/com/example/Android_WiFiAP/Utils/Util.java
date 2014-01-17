@@ -1,10 +1,13 @@
-package com.example.Android_WiFiAP;
+package com.example.Android_WiFiAP.Utils;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
+import com.example.Android_WiFiAP.ClientScanResult;
+import com.example.Android_WiFiAP.Server;
+import com.example.Android_WiFiAP.Server_Activity;
 
 import java.io.*;
 import java.net.InetAddress;

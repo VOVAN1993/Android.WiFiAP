@@ -2,8 +2,8 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
 
     <TextView android:layout_width="wrap_content"
@@ -15,20 +15,20 @@
     <LinearLayout android:layout_gravity="bottom" android:layout_width="wrap_content"
                   android:layout_height="wrap_content">
         <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:layout_weight="20"
-            android:width="300dp"
-            android:id="@+id/editText"/>
-    <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/send_button"
-            android:id="@+id/send_button"
-            android:layout_weight="1"
-            android:layout_gravity="right"
-            android:onClick="clientonClickButton"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_weight="20"
+                android:width="300dp"
+                android:id="@+id/editText"/>
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/send_button"
+                android:id="@+id/send_button"
+                android:layout_weight="1"
+                android:layout_gravity="right"
+                android:onClick="clientonClickButton"/>
         <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

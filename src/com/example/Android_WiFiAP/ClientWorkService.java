@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
 import android.util.Log;
+import com.example.Android_WiFiAP.Utils.Util;
 
 /**
  * Created by root on 16.01.14.
@@ -24,6 +25,7 @@ public class ClientWorkService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        String s = Util.getLocalIpAddressString();
         if (startId > 1) {
             Log.d(ClientActivity.LOG_CLIENT, "StartId is not valid");
             return super.onStartCommand(intent, flags, startId);

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 import android.util.Pair;
+import com.example.Android_WiFiAP.Utils.Util;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -84,7 +85,7 @@ public class Server {
 
                 if (mServerSocket != null) {
                     mServerSocket.close();
-            Log.d(LOG_D, "OK: Succesfull try to close the server socket");
+                    Log.d(LOG_D, "OK: Succesfull try to close the server socket");
                 }
         } catch (IOException e) {
             Log.d(LOG_D, "Error I/O: Unsuccesfull try to close the server socket");
@@ -204,6 +205,7 @@ public class Server {
                 } catch (IOException e) {
                     Log.d(LOG_D, "OK:Error I/O " + e);
                 } finally {
+                    Util.sendToTextViewServer(mClient.getIPAddress() + " was removed!", mContext);
                     Log.d(LOG_D, "Close client socket");
                     Log.d(LOG_D, "count clients = " + mClients.size());
                     removeClient(mClient);//TODO: возможно не надо. посмотреть козда i/o exception кидает readUTF
