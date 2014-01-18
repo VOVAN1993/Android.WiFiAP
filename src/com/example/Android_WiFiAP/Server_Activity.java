@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import com.example.Android_WiFiAP.Utils.Util;
 
@@ -27,6 +28,7 @@ public class Server_Activity extends Activity {
     private BroadcastReceiver receiverForUpdateChat;
     private BroadcastReceiver receiverEnabledExitButton;
     Button button, exitButton;
+    private EditText editText;
     Map<String, Object> mSaveObjects;
     public static final String BROADCAST_TEXT = "com.example.Android_WiFiAP";
     public static final String BROADCAST_ENABLED = "com.example.Android_WiFiAP.enabledExitButton";
@@ -43,7 +45,7 @@ public class Server_Activity extends Activity {
         button = (Button) findViewById(R.id.button1);
         exitButton = (Button) findViewById(R.id.exit_button);
         textView1 = (TextView) findViewById(R.id.chat);
-
+        editText = (EditText) findViewById(R.id.editText);
         if (savedInstanceState != null) {
             isRotate = savedInstanceState.getBoolean("isRotate");
 //            isRotate=true;
@@ -258,6 +260,19 @@ public class Server_Activity extends Activity {
             case R.id.countClients:
                 Intent intent_for_count_clients = new Intent(ServerWorkService.BROADCAST_COUNT_CLIENTS);
                 sendBroadcast(intent_for_count_clients);
+                break;
+            case R.id.send_button:
+                Log.d(LOG_D, "Press send");
+                String text = editText.getText().toString();
+                if (text.trim().length() == 0) {
+                    Log.d(LOG_D, "Text is empty");
+                } else {
+                    editText.setText("");
+                    Intent intent_for_send_clients = new Intent(Server.BROADCAST_Server_FOR_QUEUE);
+                    intent_for_send_clients.putExtra(Server.PARAM_MESS_QUEUE, text);
+                    sendBroadcast(intent_for_send_clients);
+                }
+
                 break;
             default:
                 Log.d(LOG_D, "Unknown button");

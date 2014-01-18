@@ -15,37 +15,66 @@
               android:freezesText="true"
               android:layout_gravity="center_horizontal"/>
 
+    <LinearLayout android:orientation="vertical"
+                  android:layout_height="wrap_content"
+                  android:layout_width="wrap_content"
+                  android:layout_gravity="bottom">
 
-    <LinearLayout android:layout_gravity="bottom" android:layout_width="wrap_content"
-                  android:layout_height="wrap_content">
 
-        <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/my_button1"
-                android:id="@+id/button1"
-                android:onClick="onClickButton"/>
-        <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/exit_button"
-                android:id="@+id/exit_button"
-                android:enabled="false"
-                android:onClick="onClickButton"/>
-        <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ping_button"
-                android:enabled="false"
-                android:id="@+id/ping_button"
-                android:onClick="onClickButton" android:layout_gravity="center_horizontal"/>
+        <LinearLayout android:layout_gravity="bottom"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content">
 
-        <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/count_clients_button"
-                android:id="@+id/countClients"
-                android:onClick="onClickButton"/>
+            <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:layout_weight="20"
+                    android:width="300dp"
+                    android:id="@+id/editText"/>
+            <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/send_button"
+                    android:id="@+id/send_button"
+                    android:onClick="onClickButton"/>
+
+
+        </LinearLayout>
+        <LinearLayout android:layout_gravity="bottom"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content">
+
+            <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/my_button1"
+                    android:id="@+id/button1"
+                    android:onClick="onClickButton"/>
+            <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/exit_button"
+                    android:id="@+id/exit_button"
+                    android:enabled="false"
+                    android:onClick="onClickButton"/>
+            <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ping_button"
+                    android:enabled="false"
+                    android:id="@+id/ping_button"
+                    android:onClick="onClickButton" android:layout_gravity="center_horizontal"/>
+
+            <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/count_clients_button"
+                    android:id="@+id/countClients"
+                    android:onClick="onClickButton"/>
+        </LinearLayout>
+
     </LinearLayout>
+
 
 </FrameLayout>

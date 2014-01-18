@@ -1,8 +1,10 @@
 package com.example.Android_WiFiAP;
 
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.util.Log;
 import android.util.Pair;
@@ -12,6 +14,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -26,6 +29,7 @@ public class Server {
     }
 
     private final BlockingQueue<Pair<String, Client>> mMessageQueue;
+    private final BlockingQueue<String> mLocalMessageQueue;
     public List<Client> mClients;
     private Intent intent_for_chat;
     private ThreadGroup mThreadGroup;
@@ -35,7 +39,13 @@ public class Server {
     private Handler mTextViewHandler;
     private Thread mServerThread;
     private Thread mServerRecv;
+    private Thread mServerClient;
     private Context mContext;
+    private Client i_am_client;
+    private InetAddress mServer_ip;
+    private BroadcastReceiver receiver_for_queue;
+    public static final String PARAM_MESS_QUEUE = "mess";
+    public static final String BROADCAST_Server_FOR_QUEUE = "com.example.Android-Wi-Fi.Ap.server_queue";
 
     public Server(Handler _handler, Context _context) {
         mContext = _context;
@@ -43,12 +53,30 @@ public class Server {
         mThreadGroup = new ThreadGroup("my thread group");
         mTextViewHandler = _handler;
         mClients = new CopyOnWriteArrayList();
+        try {
+            mServer_ip = InetAddress.getByName(Util.getLocalIpAddressString());
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
 //        mClients = Collections.synchronizedList(new LinkedList<Client>());
         mMessageQueue = new ArrayBlockingQueue<Pair<String, Client>>(MAX_LENGTH_QUEUE);
+        mLocalMessageQueue = new ArrayBlockingQueue<String>(MAX_LENGTH_QUEUE);
+        receiver_for_queue = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String mess = intent.getStringExtra(PARAM_MESS_QUEUE);
+                mLocalMessageQueue.add(mess);
+            }
+        };
+        IntentFilter intFiltForBroadcast = new IntentFilter(BROADCAST_Server_FOR_QUEUE);
+        mContext.registerReceiver(receiver_for_queue, intFiltForBroadcast);
+
         mServerThread = new Thread(mThreadGroup, new ServerThread());
         mServerThread.start();
         mServerRecv = new Thread(mThreadGroup, new ServerRecv());
         mServerRecv.start();
+        mServerClient = new Thread(mThreadGroup, new ClientForServer());
+        mServerClient.start();
     }
 
     private synchronized void removeClient(Client _client) {
@@ -152,6 +180,7 @@ public class Server {
         public void run() {
             try {
                 mServerSocket = new ServerSocket(getServerPort());
+                i_am_client = new Client(6666, mServer_ip, null);
                 while (!Thread.currentThread().isInterrupted()) {
                     Log.d(LOG_D, "Waiting for a client...");
                     Socket socket_new_client = mServerSocket.accept();
@@ -215,6 +244,35 @@ public class Server {
         }
     }
 
+    private class ClientForServer implements Runnable {
+        private ClientForServer() {
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (!Thread.currentThread().isInterrupted()) {
+                    final String mess = mLocalMessageQueue.take();
+                    Log.d(ClientActivity.LOG_CLIENT, "Trying sending message mess = " + mess);
+                    mMessageQueue.add(new Pair<String, Client>(mess, i_am_client));
+//                pool.submit(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        try {
+//                            out.writeUTF(mess);
+//                            out.flush();
+//                            Log.d(ClientActivity.LOG_CLIENT, "OK send");
+//                        } catch (IOException e) {
+//                            Log.d(ClientActivity.LOG_CLIENT, "Error I/O when sending messege " + e);
+//                        }
+//                    }
+//                });
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public int getServerPort() {
         return mServerPort;
