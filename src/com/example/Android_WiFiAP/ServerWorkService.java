@@ -54,7 +54,8 @@ public class ServerWorkService extends Service {
                 Log.d(LOG_SERVER_WORK, "WiFiManager is created");
                 Log.d(LOG_SERVER_WORK, "My Server " + Util.getLocalIpAddressString());
                 wifiAPManager.start(null, getApplicationContext());
-                Intent enabledExitButton = new Intent(Server_Activity.BROADCAST_ENABLED);
+                Intent enabledExitButton = new Intent(Server_Activity.BROADCAST_SERVER_ACTIVITY);
+                enabledExitButton.putExtra(Server_Activity.SERVER_TYPE, Server_Activity.TYPE_SERVER_EXIT_ENABLED);
                 sendBroadcast(enabledExitButton);
             }
         }).start();
@@ -79,6 +80,7 @@ public class ServerWorkService extends Service {
         Log.d(LOG_SERVER_WORK, "OnDestroy Service");
         wifiAPManager.exit();
         wifiAPManager.stopAP();
+        unregisterReceiver(receiverForCountClient);
     }
 
     public IBinder onBind(Intent intent) {

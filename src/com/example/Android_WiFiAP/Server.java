@@ -49,7 +49,7 @@ public class Server {
 
     public Server(Handler _handler, Context _context) {
         mContext = _context;
-        intent_for_chat = new Intent(Server_Activity.BROADCAST_TEXT);
+        intent_for_chat = new Intent(Server_Activity.BROADCAST_SERVER_ACTIVITY);
         mThreadGroup = new ThreadGroup("my thread group");
         mTextViewHandler = _handler;
         mClients = new CopyOnWriteArrayList();
@@ -110,11 +110,8 @@ public class Server {
         }
         try {
             if (mServerSocket != null)
-
-                if (mServerSocket != null) {
                     mServerSocket.close();
                     Log.d(LOG_D, "OK: Succesfull try to close the server socket");
-                }
         } catch (IOException e) {
             Log.d(LOG_D, "Error I/O: Unsuccesfull try to close the server socket");
         }
@@ -130,6 +127,7 @@ public class Server {
                     Pair<String, Client> pair = mMessageQueue.take();
                     Log.d(LOG_D, "Send message: " + pair.first + " from " + pair.second);
                     Future f = pool.submit(new ServerSend(pair.second, mClients, pair.first));
+                    intent_for_chat.putExtra(Server_Activity.SERVER_TYPE, Server_Activity.TYPE_SERVER_UPDATE_TEXTVIEW);
                     intent_for_chat.putExtra(Server_Activity.PARAM_MESS, pair.first);
                     mContext.sendBroadcast(intent_for_chat);
 //                    mTextViewHandler.sendMessage(Util.getMessageFromString(pair.first, "msg"));
@@ -184,7 +182,7 @@ public class Server {
                 while (!Thread.currentThread().isInterrupted()) {
                     Log.d(LOG_D, "Waiting for a client...");
                     Socket socket_new_client = mServerSocket.accept();
-//                    mTextViewHandler.sendMessage(Util.getMessageFromString("client " + socket_new_client.getInetAddress().toString(), "msg"));
+                    intent_for_chat.putExtra(Server_Activity.SERVER_TYPE, Server_Activity.TYPE_SERVER_UPDATE_TEXTVIEW);
                     intent_for_chat.putExtra(Server_Activity.PARAM_MESS, "client " + socket_new_client.getInetAddress().toString());
                     mContext.sendBroadcast(intent_for_chat);
                     Client newClient = new Client(socket_new_client.getPort(), socket_new_client.getInetAddress(), socket_new_client);

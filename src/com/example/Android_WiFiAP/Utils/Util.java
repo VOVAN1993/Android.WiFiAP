@@ -22,7 +22,7 @@ import java.util.Enumeration;
  * Created by root on 02.01.14.
  */
 public class Util {
-    static Intent intent_for_chat = new Intent(Server_Activity.BROADCAST_TEXT);
+    static Intent intent_for_chat = new Intent(Server_Activity.BROADCAST_SERVER_ACTIVITY);
 
     static public void customFormat(String pattern, double value) {
         DecimalFormat myFormatter = new DecimalFormat(pattern);
@@ -180,6 +180,7 @@ public class Util {
 
 
     public static void sendToTextViewServer(String mess, Context mContext) {
+        intent_for_chat.putExtra(Server_Activity.SERVER_TYPE, Server_Activity.TYPE_SERVER_UPDATE_TEXTVIEW);
         intent_for_chat.putExtra(Server_Activity.PARAM_MESS, mess);
         mContext.sendBroadcast(intent_for_chat);
     }

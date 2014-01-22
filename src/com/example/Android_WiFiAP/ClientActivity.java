@@ -24,6 +24,38 @@ public class ClientActivity extends Activity {
     private BroadcastReceiver receiverForUpdateChat;
     public final static String PARAM_MESS = "mess";
     public static final String BROADCAST_CHAT = "com.example.Android_WiFiAP.ClientChat";
+    public static final String BROADCAST_CLIENT_FINISH = "com.example.Android_WiFiAP.CLIENT_FINISH";
+
+
+    public static final String CLIENT_TYPE = "com.example.Android_WiFiAP.CLIENT_TYPE";
+    public static final String TYPE_SEND_MESSAGE = "Type.SendMess";
+    public static final String TYPE_FINISH_ACTIVITY = "Type.FINISH_ACTIVITY";
+
+
+    private void createBroadcastReceivers() {
+
+        receiverForUpdateChat = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String type = intent.getStringExtra(CLIENT_TYPE);
+                if (type.equals(TYPE_SEND_MESSAGE)) {
+                    String mess = intent.getStringExtra(PARAM_MESS);
+                    textView.append(mess + '\n');
+                    return;
+                }
+                if (type.equals(TYPE_FINISH_ACTIVITY)) {
+                    finish();
+                    return;
+                }
+            }
+        };
+        IntentFilter intFiltForBroadcast = new IntentFilter(BROADCAST_CHAT);
+        registerReceiver(receiverForUpdateChat, intFiltForBroadcast);
+    }
+
+    private void unregisterBroadcast() {
+        unregisterReceiver(receiverForUpdateChat);
+    }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,22 +64,13 @@ public class ClientActivity extends Activity {
         isRotate = false;
         editText = (EditText) findViewById(R.id.editText);
         textView = (TextView) findViewById(R.id.chat);
+        receive_to_client_queue = new Intent(Client.BROADCAST_CLIENT_FOR_QUEUE);
 
         if (savedInstanceState != null) {
             isRotate = savedInstanceState.getBoolean("isRotate");
         }
 
-        receive_to_client_queue = new Intent(Client.BROADCAST_CLIENT_FOR_QUEUE);
-
-        receiverForUpdateChat = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String mess = intent.getStringExtra(PARAM_MESS);
-                textView.append(mess + '\n');
-            }
-        };
-        IntentFilter intFiltForBroadcast = new IntentFilter(BROADCAST_CHAT);
-        registerReceiver(receiverForUpdateChat, intFiltForBroadcast);
+        createBroadcastReceivers();
 
         if (!isRotate) {
             Intent intentServiceClietnWork = new Intent(this, ClientWorkService.class);
@@ -91,6 +114,7 @@ public class ClientActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterBroadcast();
 //        Intent intent = new Intent(ClientWorkService.BROADCAST_KILL_MYSELF);
 //        sendBroadcast(intent);
     }

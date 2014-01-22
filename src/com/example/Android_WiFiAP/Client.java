@@ -69,15 +69,14 @@ public class Client {
     public void startWork() {
         try {
             socket = new Socket(server_ip, server_port); // создаем сокет используя IP-адрес и порт сервера.
-            //handler_for_text_view.sendMessage(Util.getMessageFromString("Da", "msg"));
+            intent_for_chat.putExtra(ClientActivity.CLIENT_TYPE, ClientActivity.TYPE_SEND_MESSAGE);
             intent_for_chat.putExtra(ClientActivity.PARAM_MESS, "Connect OK");
             mContext.sendBroadcast(intent_for_chat);
             Log.d(ClientActivity.LOG_CLIENT, "OK:Connection succeeds");
             new Thread(mThreadGroup, new Sender(new DataOutputStream(socket.getOutputStream()))).start();
             new Thread(mThreadGroup, new Recv(new DataInputStream(socket.getInputStream()))).start();
-//            mainPoll.submit(new Sender(new DataOutputStream(socket.getOutputStream())));
-//            mainPoll.submit(new Recv(new DataInputStream(socket.getInputStream())));
         } catch (IOException e) {
+            intent_for_chat.putExtra(ClientActivity.CLIENT_TYPE, ClientActivity.TYPE_SEND_MESSAGE);
             intent_for_chat.putExtra(ClientActivity.PARAM_MESS, "Connect Failed");
             mContext.sendBroadcast(intent_for_chat);
             Log.d(ClientActivity.LOG_CLIENT, "I/O Error:" + e.getMessage());
@@ -93,6 +92,9 @@ public class Client {
             Log.d(ClientActivity.LOG_CLIENT, "Try kill self");
             if (socket != null)
                 socket.close();
+            intent_for_chat.putExtra(ClientActivity.CLIENT_TYPE, ClientActivity.TYPE_FINISH_ACTIVITY);
+            mContext.sendBroadcast(intent_for_chat);
+            //finish activity
         } catch (IOException e) {
             Log.d(ClientActivity.LOG_CLIENT, "ERROR I/O when try killing myself");
         }
@@ -133,6 +135,7 @@ public class Client {
                 }
             } catch (InterruptedException e) {
                 Log.d(ClientActivity.LOG_CLIENT, "Interrupt QUeueThread");
+                Thread.currentThread().interrupt();
             } finally {
                 try {
                     out.close();
@@ -142,6 +145,7 @@ public class Client {
                     Log.d(ClientActivity.LOG_CLIENT, "Error I/O when finally" + e);
                 }
             }
+            killSelf();
         }
     }
 
@@ -161,6 +165,7 @@ public class Client {
                     String line = in.readUTF();
                     Log.d(ClientActivity.LOG_CLIENT, "Read " + line);
 //                    handler_for_text_view.sendMessage(Util.getMessageFromString(line, "msg"));
+                    intent_for_chat.putExtra(ClientActivity.CLIENT_TYPE, ClientActivity.TYPE_SEND_MESSAGE);
                     intent_for_chat.putExtra(ClientActivity.PARAM_MESS, line);
                     mContext.sendBroadcast(intent_for_chat);
 
